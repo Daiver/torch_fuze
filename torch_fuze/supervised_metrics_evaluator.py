@@ -19,7 +19,7 @@ class SupervisedMetricsEvaluator:
     def sum_metrics_values(metrics_values: OrderedDict, average=False):
         res = OrderedDict()
         for name, values in metrics_values.items():
-            res[name] = np.sum(values)
+            res[name] = np.sum(np.array(values, dtype=np.float32))
             if average and len(values) > 0:
                 res[name] /= len(values)
 

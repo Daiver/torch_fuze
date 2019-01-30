@@ -51,7 +51,7 @@ def main():
     model = Net()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30], gamma=0.3)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
 
     metrics = OrderedDict([
         ("loss", criterion),
@@ -62,7 +62,7 @@ def main():
         torch_fuze.callbacks.ProgressCallback(),
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
-    trainer.run(train_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks)
+    trainer.run(train_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks, train_metrics=metrics)
 
 
 if __name__ == '__main__':
