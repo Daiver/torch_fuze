@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 
-def ordered_dicts_almost_equal(d1: OrderedDict, d2: OrderedDict, epsilon=1e-5):
+def is_ordered_dicts_almost_equal(d1: OrderedDict, d2: OrderedDict, epsilon=1e-5):
     if len(d1) != len(d2):
         return False
 
