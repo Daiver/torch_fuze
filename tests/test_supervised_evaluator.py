@@ -17,14 +17,16 @@ class LinearModel(nn.Module):
         self.fc.bias.data = torch.FloatTensor([[-1]])
 
     def forward(self, x):
-        return self.fc(x).view(-1)
+        return self.fc(x)
 
 
 class TestSupervisedEvaluator(unittest.TestCase):
     @staticmethod
     def l2_squared_loss(x, y):
+        assert x.shape == y.shape
         diff = x - y
-        return (diff * diff).sum()
+        res = (diff * diff).sum()
+        return res
 
     def test1(self):
         model = LinearModel()
@@ -44,6 +46,58 @@ class TestSupervisedEvaluator(unittest.TestCase):
 
         res = evaluator.run(batch)
         ans = OrderedDict([("l2", 4.0)])
+        self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
+
+    def test2(self):
+        model = LinearModel()
+        metrics = OrderedDict([("l2", self.l2_squared_loss)])
+        evaluator = SupervisedEvaluator(model, metrics, device="cpu")
+        tensor = torch.FloatTensor
+        batch = [
+            (
+                tensor([
+                    [0, 0],
+                    [1, 3]
+                ]),
+                tensor([
+                    [1],
+                    [5]
+                ])
+            )
+        ]
+
+        res = evaluator.run(batch)
+        ans = OrderedDict([("l2", 4.0 + 25.0)])
+        self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
+
+    def test3(self):
+        model = LinearModel()
+        metrics = OrderedDict([("l2", self.l2_squared_loss)])
+        evaluator = SupervisedEvaluator(model, metrics, device="cpu")
+        tensor = torch.FloatTensor
+        batches = [
+            (
+                tensor([
+                    [0, 0],
+                    [1, 3]
+                ]),
+                tensor([
+                    [1],
+                    [5]
+                ])
+            ),
+            (
+                tensor([
+                    [1, 0]
+                ]),
+                tensor([
+                    [-2]
+                ])
+            )
+        ]
+
+        res = evaluator.run(batches)
+        ans = OrderedDict([("l2", (29.0 + 9) / 2)])
         self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
 
 
