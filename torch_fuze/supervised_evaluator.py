@@ -31,7 +31,6 @@ class SupervisedEvaluator:
         with torch.no_grad():
             model = self.model.to(self.device)
             model.eval()
-            losses = []
             for inputs, targets in loader:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 outputs = model(inputs)

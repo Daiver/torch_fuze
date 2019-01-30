@@ -50,8 +50,11 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
+    callbacks = [
+        torch_fuze.callbacks.ProgressCallback()
+    ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
-    trainer.run(train_loader, optimizer, 10)
+    trainer.run(train_loader, optimizer, 10, callbacks=callbacks)
 
 
 if __name__ == '__main__':

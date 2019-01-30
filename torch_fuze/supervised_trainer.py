@@ -50,12 +50,10 @@ class SupervisedTrainer(AbstractTrainer):
                 if scheduler is not None:
                     scheduler.step()
             end_time = time.time()
-            elapsed = end_time - start_time
+            self.state.elapsed = end_time - start_time
             self.model.train(False)
 
             self.state.run_avg_loss = np.mean(losses)
-            print(
-                f"{self.state.epoch}/{self.state.end_epoch - 1} loss = {self.state.run_avg_loss}, elapsed = {elapsed}")
 
             self.callbacks_on_epoch_end(callbacks)
 
