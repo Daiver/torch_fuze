@@ -1,6 +1,7 @@
 from collections import OrderedDict
-import numpy as np
 import torch
+
+from .supervised_metrics_evaluator import SupervisedMetricsEvaluator
 
 
 class SupervisedEvaluator:
@@ -9,33 +10,15 @@ class SupervisedEvaluator:
         self.metrics = metrics
         self.device = device
 
-    @staticmethod
-    def mk_metrics_values(metrics: OrderedDict):
-        res = OrderedDict()
-        for name in metrics.keys():
-            res[name] = []
-        return res
-
-    @staticmethod
-    def sum_metrics_values(metrics_values: OrderedDict, average=False):
-        res = OrderedDict()
-        for name, values in metrics_values.items():
-            res[name] = np.sum(values)
-            if average and len(values) > 0:
-                res[name] /= len(values)
-
-        return res
-
     def run(self, loader):
-        metrics_values_per_batch = self.mk_metrics_values(self.metrics)
+        metrics_evaluator = SupervisedMetricsEvaluator(self.metrics)
         with torch.no_grad():
             model = self.model.to(self.device)
             model.eval()
             for inputs, targets in loader:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 outputs = model(inputs)
-                for metric_name, metric_func in self.metrics.items():
-                    metrics_values_per_batch[metric_name].append(metric_func(outputs, targets))
+                metrics_evaluator.process_batch(outputs, targets)
 
-        res = self.sum_metrics_values(metrics_values_per_batch, average=True)
+        res = metrics_evaluator.compute_result_and_reset(True)
         return res

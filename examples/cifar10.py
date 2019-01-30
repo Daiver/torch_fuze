@@ -35,7 +35,7 @@ class Net(nn.Module):
 def main():
     print(f"Fuze version: {torch_fuze.__version__}")
 
-    lr = 0.01
+    # lr = 0.01
     batch_size = 32
     # device = "cpu"
     device = "cuda"
@@ -50,7 +50,7 @@ def main():
 
     model = Net()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters())
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30], gamma=0.3)
 
     metrics = OrderedDict([

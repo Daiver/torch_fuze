@@ -18,11 +18,12 @@ class ProgressCallback(AbstractCallback):
 class ValidationCallback(AbstractCallback):
     def __init__(self, model, val_loader, metrics, prefix="val"):
         super().__init__()
+        self.model = model
         self.val_loader = val_loader
         self.metrics = metrics
         self.prefix = prefix
-        self.evaluator = SupervisedEvaluator(model=model, metrics=metrics)
 
     def on_epoch_end(self, state: TrainerState):
-        metrics_vals = self.evaluator.run(self.val_loader)
+        evaluator = SupervisedEvaluator(model=self.model, metrics=self.metrics)
+        metrics_vals = evaluator.run(self.val_loader)
         state.metrics_per_category[self.prefix] = metrics_vals
