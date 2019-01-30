@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 from .abstract_trainer import AbstractTrainer
@@ -11,27 +12,29 @@ class SupervisedTrainer(AbstractTrainer):
         self.criterion = criterion
         self.device = device
 
-        self.run_avg_loss = None
+        self.state.end_epoch = 0
+        self.state.run_avg_loss = None
 
     def run(self,
             loader,
             optimizer,
             n_epochs,
             scheduler=None,
-            callbacks: list[AbstractCallback]=None):
+            callbacks: list=None):
         callbacks = [] if callbacks is None else callbacks
 
         self.model.to(self.device)
-        for callback in callbacks:
-            callback.on_training_begin(self)
+        self.callbacks_on_training_begin(callbacks)
 
-        for epoch in range(self.state.epoch, self.state.epoch + n_epochs):
+        self.state.end_epoch = self.state.epoch + n_epochs
+        for epoch in range(self.state.epoch, self.state.end_epoch):
             self.state.epoch = epoch
-            for callback in callbacks:
-                callback.on_epoch_begin(self)
+
+            self.callbacks_on_epoch_begin(callbacks)
 
             losses = []
             self.model.train(True)
+            start_time = time.time()
             for iteration, (inp, target) in enumerate(loader):
                 self.state.iteration = iteration
 
@@ -46,14 +49,15 @@ class SupervisedTrainer(AbstractTrainer):
                 optimizer.zero_grad()
                 if scheduler is not None:
                     scheduler.step()
-
+            end_time = time.time()
+            elapsed = end_time - start_time
             self.model.train(False)
 
-            self.run_avg_loss = np.mean(losses)
+            self.state.run_avg_loss = np.mean(losses)
+            print(
+                f"{self.state.epoch}/{self.state.end_epoch - 1} loss = {self.state.run_avg_loss}, elapsed = {elapsed}")
 
-            for callback in callbacks:
-                callback.on_epoch_end(self)
+            self.callbacks_on_epoch_end(callbacks)
 
-        for callback in callbacks:
-            callback.on_training_end(self)
+        self.callbacks_on_training_end(callbacks)
 
