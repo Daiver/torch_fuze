@@ -35,7 +35,7 @@ class SupervisedEvaluator:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 outputs = model(inputs)
                 for metric_name, metric_func in self.metrics.items():
-                    metrics_values_per_batch[metric_name] = metric_func(outputs, targets)
+                    metrics_values_per_batch[metric_name].append(metric_func(outputs, targets))
 
         res = self.sum_metrics_values(metrics_values_per_batch, average=True)
         return res

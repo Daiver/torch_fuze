@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,7 +35,7 @@ class Net(nn.Module):
 def main():
     print(f"Fuze version: {torch_fuze.__version__}")
 
-    lr = 0.001
+    lr = 0.01
     batch_size = 32
     # device = "cpu"
     device = "cuda"
@@ -49,12 +51,18 @@ def main():
     model = Net()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[10, 30], gamma=0.3)
 
+    metrics = OrderedDict([
+        ("loss", criterion),
+        ("acc", torch_fuze.metrics.Accuracy())
+    ])
     callbacks = [
-        torch_fuze.callbacks.ProgressCallback()
+        torch_fuze.callbacks.ValidationCallback(model, test_loader, metrics),
+        torch_fuze.callbacks.ProgressCallback(),
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
-    trainer.run(train_loader, optimizer, 10, callbacks=callbacks)
+    trainer.run(train_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks)
 
 
 if __name__ == '__main__':
