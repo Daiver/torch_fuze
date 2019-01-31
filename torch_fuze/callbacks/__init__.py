@@ -7,6 +7,8 @@ from ..utils import metrics_to_nice_string
 from ..supervised_evaluator import run_supervised_metrics
 from .abstract_callback import AbstractCallback
 
+from .tensorboardx_callback import TensorBoardXCallback
+
 
 class ProgressCallback(AbstractCallback):
     def __init__(self):

@@ -33,7 +33,7 @@ class Net(nn.Module):
 
 
 def main():
-    print(f"Fuze version: {torch_fuze.__version__}")
+    print(f"Torch version: {torch.__version__}, Fuze version: {torch_fuze.__version__}")
 
     # lr = 0.01
     batch_size = 32
@@ -61,7 +61,8 @@ def main():
         torch_fuze.callbacks.ProgressCallback(),
         # torch_fuze.callbacks.BestModelSaverCallback(model, "checkpoints/best.pt")
         torch_fuze.callbacks.BestModelSaverCallback(
-            model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False)
+            model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False),
+        torch_fuze.callbacks.TensorBoardXCallback("logs")
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(
