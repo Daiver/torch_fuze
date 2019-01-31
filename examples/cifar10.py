@@ -37,8 +37,8 @@ def main():
 
     # lr = 0.01
     batch_size = 32
-    device = "cpu"
-    # device = "cuda"
+    # device = "cpu"
+    device = "cuda"
 
     trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (1.0,))])
     # if not exist, download mnist dataset
@@ -59,11 +59,13 @@ def main():
     ])
     callbacks = [
         torch_fuze.callbacks.ProgressCallback(),
-        torch_fuze.callbacks.BestModelSaverCallback(model, "checkpoints/best.pt")
+        # torch_fuze.callbacks.BestModelSaverCallback(model, "checkpoints/best.pt")
+        torch_fuze.callbacks.BestModelSaverCallback(
+            model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False)
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(
-        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks, metrics=metrics)
+        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=50, callbacks=callbacks, metrics=metrics)
 
 
 if __name__ == '__main__':
