@@ -2,11 +2,10 @@ import os
 import operator
 import torch
 
-from .trainer_state import TrainerState
+from ..trainer_state import TrainerState
+from ..utils import metrics_to_nice_string
+from ..supervised_evaluator import run_supervised_metrics
 from .abstract_callback import AbstractCallback
-from .utils import metrics_to_nice_string
-
-from .supervised_evaluator import run_supervised_metrics
 
 
 class ProgressCallback(AbstractCallback):

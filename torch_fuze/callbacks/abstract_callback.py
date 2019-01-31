@@ -1,4 +1,4 @@
-from .trainer_state import TrainerState
+from ..trainer_state import TrainerState
 
 
 class AbstractCallback:
