@@ -58,11 +58,11 @@ def main():
         ("acc", torch_fuze.metrics.Accuracy())
     ])
     callbacks = [
-        torch_fuze.callbacks.ValidationCallback(model, test_loader, metrics),
         torch_fuze.callbacks.ProgressCallback(),
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
-    trainer.run(train_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks, train_metrics=metrics)
+    trainer.run(
+        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=100, callbacks=callbacks, metrics=metrics)
 
 
 if __name__ == '__main__':

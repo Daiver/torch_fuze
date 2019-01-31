@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from .utils import is_ordered_dicts_almost_equal
 
-from torch_fuze.supervised_evaluator import SupervisedEvaluator
+from torch_fuze.supervised_evaluator import run_supervised_metrics
 
 
 class LinearModel(nn.Module):
@@ -31,7 +31,6 @@ class TestSupervisedEvaluator(unittest.TestCase):
     def test1(self):
         model = LinearModel()
         metrics = OrderedDict([("l2", self.l2_squared_loss)])
-        evaluator = SupervisedEvaluator(model, metrics, device="cpu")
         tensor = torch.FloatTensor
         batch = [
             (
@@ -44,14 +43,14 @@ class TestSupervisedEvaluator(unittest.TestCase):
             )
         ]
 
-        res = evaluator.run(batch)
+        res = run_supervised_metrics(model, metrics, batch, device="cpu")
         ans = OrderedDict([("l2", 4.0)])
         self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
 
     def test2(self):
         model = LinearModel()
         metrics = OrderedDict([("l2", self.l2_squared_loss)])
-        evaluator = SupervisedEvaluator(model, metrics, device="cpu")
+
         tensor = torch.FloatTensor
         batch = [
             (
@@ -66,14 +65,14 @@ class TestSupervisedEvaluator(unittest.TestCase):
             )
         ]
 
-        res = evaluator.run(batch)
+        res = run_supervised_metrics(model, metrics, batch, device="cpu")
         ans = OrderedDict([("l2", 4.0 + 25.0)])
         self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
 
     def test3(self):
         model = LinearModel()
         metrics = OrderedDict([("l2", self.l2_squared_loss)])
-        evaluator = SupervisedEvaluator(model, metrics, device="cpu")
+
         tensor = torch.FloatTensor
         batches = [
             (
@@ -96,7 +95,7 @@ class TestSupervisedEvaluator(unittest.TestCase):
             )
         ]
 
-        res = evaluator.run(batches)
+        res = run_supervised_metrics(model, metrics, batches, device="cpu")
         ans = OrderedDict([("l2", (29.0 + 9) / 2)])
         self.assertTrue(is_ordered_dicts_almost_equal(res, ans))
 

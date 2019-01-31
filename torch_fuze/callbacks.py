@@ -1,7 +1,7 @@
 from .trainer_state import TrainerState
 from .abstract_callback import AbstractCallback
 
-from .supervised_evaluator import SupervisedEvaluator
+from .supervised_evaluator import run_supervised_metrics
 
 
 class ProgressCallback(AbstractCallback):
@@ -16,14 +16,14 @@ class ProgressCallback(AbstractCallback):
 
 
 class ValidationCallback(AbstractCallback):
-    def __init__(self, model, val_loader, metrics, prefix="valid"):
+    def __init__(self, model, val_loader, metrics, prefix="valid", device="cuda"):
         super().__init__()
         self.model = model
         self.val_loader = val_loader
         self.metrics = metrics
         self.prefix = prefix
+        self.device = device
 
     def on_epoch_end(self, state: TrainerState):
-        evaluator = SupervisedEvaluator(model=self.model, metrics=self.metrics)
-        metrics_vals = evaluator.run(self.val_loader)
+        metrics_vals = run_supervised_metrics(self.model, self.metrics, self.val_loader, self.device)
         state.metrics_per_category[self.prefix] = metrics_vals
