@@ -8,7 +8,7 @@ from .supervised_metrics_evaluator import SupervisedMetricsEvaluator
 
 
 class SupervisedTrainer(AbstractTrainer):
-    def __init__(self, model, criterion, device="cuda"):
+    def __init__(self, model, criterion, device="cpu"):
         super().__init__()
         self.model = model
         self.criterion = criterion

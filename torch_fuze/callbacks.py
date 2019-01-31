@@ -16,7 +16,7 @@ class ProgressCallback(AbstractCallback):
 
 
 class ValidationCallback(AbstractCallback):
-    def __init__(self, model, val_loader, metrics, prefix="valid", device="cuda"):
+    def __init__(self, model, val_loader, metrics, prefix="valid", device="cpu"):
         super().__init__()
         self.model = model
         self.val_loader = val_loader
