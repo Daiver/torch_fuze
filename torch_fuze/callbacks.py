@@ -4,6 +4,7 @@ import torch
 
 from .trainer_state import TrainerState
 from .abstract_callback import AbstractCallback
+from .utils import metrics_to_nice_string
 
 from .supervised_evaluator import run_supervised_metrics
 
@@ -15,7 +16,7 @@ class ProgressCallback(AbstractCallback):
     def on_epoch_end(self, state: TrainerState):
         print(f"{state.epoch}/{state.end_epoch - 1} loss = {state.run_avg_loss}, elapsed = {state.elapsed}")
         for metrics_cat_name, value in state.metrics_per_category.items():
-            string_to_print = " | ".join("{}: {}".format(k, v) for k, v in value.items())
+            string_to_print = metrics_to_nice_string(value)
             print(f"metrics_{metrics_cat_name}: {string_to_print}")
 
 

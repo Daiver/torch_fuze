@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 
 import torch_fuze
 from torch_fuze.supervised_evaluator import run_supervised_metrics
+from torch_fuze.utils import metrics_to_nice_string
 
 from cifar10 import Net
 
@@ -33,7 +34,7 @@ def main():
         ("loss", criterion),
         ("acc", torch_fuze.metrics.Accuracy())
     ])
-    print(run_supervised_metrics(model, metrics, test_loader, device))
+    print(metrics_to_nice_string(run_supervised_metrics(model, metrics, test_loader, device)))
 
 
 if __name__ == '__main__':
