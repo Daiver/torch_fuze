@@ -9,7 +9,7 @@ import torch_fuze
 from torch_fuze.supervised_evaluator import run_supervised_metrics
 from torch_fuze.utils import metrics_to_nice_string
 
-from cifar10 import Net
+from train import Net
 
 
 def main():

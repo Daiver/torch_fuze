@@ -8,6 +8,7 @@ from ..supervised_evaluator import run_supervised_metrics
 from .abstract_callback import AbstractCallback
 
 from .tensorboardx_callback import TensorBoardXCallback
+from .mlflow_callback import MLFlowCallback
 
 
 class ProgressCallback(AbstractCallback):

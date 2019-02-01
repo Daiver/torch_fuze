@@ -1,11 +1,15 @@
 <component name="ProjectDictionaryState">
   <dictionary name="daiver">
     <words>
+      <w>cifar</w>
       <w>conv</w>
       <w>cuda</w>
       <w>daiver</w>
       <w>fuze</w>
+      <w>mlflow</w>
       <w>pred</w>
+      <w>tensorboard</w>
+      <w>torchvision</w>
       <w>vals</w>
     </words>
   </dictionary>

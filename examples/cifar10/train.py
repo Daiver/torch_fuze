@@ -61,7 +61,8 @@ def main():
         torch_fuze.callbacks.ProgressCallback(),
         torch_fuze.callbacks.BestModelSaverCallback(
             model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False),
-        torch_fuze.callbacks.TensorBoardXCallback("logs")
+        torch_fuze.callbacks.TensorBoardXCallback("logs", remove_old_logs=True),
+        torch_fuze.callbacks.MLFlowCallback(lowest_metrics_to_track={"valid_loss"}, highest_metrics_to_track={"valid_acc"})
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(

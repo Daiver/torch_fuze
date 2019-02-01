@@ -1,12 +1,16 @@
 from ..trainer_state import TrainerState
 from .abstract_callback import AbstractCallback
 
+import os
+import shutil
 import tensorboardX
 
 
 class TensorBoardXCallback(AbstractCallback):
-    def __init__(self, log_dir=None):
+    def __init__(self, log_dir=None, remove_old_logs=False):
         super().__init__()
+        if remove_old_logs:
+            shutil.rmtree(log_dir, ignore_errors=True)
         self.writer = tensorboardX.SummaryWriter(log_dir=log_dir)
 
     def on_epoch_end(self, state: TrainerState):
