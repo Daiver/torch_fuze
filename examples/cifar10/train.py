@@ -65,7 +65,8 @@ def main():
         torch_fuze.callbacks.MLFlowCallback(
             metrics_to_track={"valid_loss", "valid_acc", "train_acc"},
             lowest_metrics_to_track={"valid_loss"},
-            highest_metrics_to_track={"valid_acc"})
+            highest_metrics_to_track={"valid_acc"},
+            files_to_save_at_every_batch={"checkpoints/best.pt"})
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(
