@@ -8,9 +8,11 @@ class MLFlowCallback(AbstractCallback):
     # TODO: i need clear solution for category/metric
     def __init__(
             self,
+            metrics_to_track: set = None,
             lowest_metrics_to_track: set =None,
             highest_metrics_to_track: set =None):
         super().__init__()
+        self.metrics_to_track = metrics_to_track
         self.lowest_metrics_to_track = lowest_metrics_to_track if lowest_metrics_to_track is not None else set()
         self.highest_metrics_to_track = highest_metrics_to_track if highest_metrics_to_track is not None else set()
 
@@ -21,6 +23,8 @@ class MLFlowCallback(AbstractCallback):
         for cat_name, metrics in state.metrics_per_category.items():
             for metric_name, metric_value in metrics.items():
                 full_metric_name = "_".join((cat_name, metric_name))
+                if self.metrics_to_track is not None and full_metric_name not in self.metrics_to_track:
+                    continue
                 mlflow.log_metric(full_metric_name, metric_value)
 
                 if full_metric_name in self.lowest_metrics_to_track:
