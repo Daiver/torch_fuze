@@ -10,3 +10,6 @@ class TrainerState:
         self.run_avg_loss = 1e10
 
         self.metrics_per_category = OrderedDict()
+
+        self.optimizer = None
+        self.scheduler = None

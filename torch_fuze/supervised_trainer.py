@@ -31,6 +31,9 @@ class SupervisedTrainer(AbstractTrainer):
         self.model.to(self.device)
         self.callbacks_on_training_begin(callbacks)
 
+        self.state.optimizer = optimizer
+        self.state.scheduler = scheduler
+
         self.state.end_epoch = self.state.epoch + n_epochs
         for epoch in range(self.state.epoch, self.state.end_epoch):
             self.state.epoch = epoch
