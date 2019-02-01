@@ -36,7 +36,13 @@ class ValidationCallback(AbstractCallback):
 
 
 class BestModelSaverCallback(AbstractCallback):
-    def __init__(self, model, save_path, metric_name="loss", metric_category="valid", lower_is_better=True):
+    def __init__(self,
+                 model,
+                 save_path,
+                 metric_name="loss",
+                 metric_category="valid",
+                 lower_is_better=True,
+                 verbose=False):
         super().__init__()
         self.model = model
         self.save_path = save_path
@@ -44,6 +50,7 @@ class BestModelSaverCallback(AbstractCallback):
         self.metric_category = metric_category
         self.best_value = None
         self.comparison_operator = operator.lt if lower_is_better else operator.gt
+        self.verbose = verbose
 
     def save_model(self):
         dir_path = os.path.dirname(self.save_path)
@@ -56,6 +63,7 @@ class BestModelSaverCallback(AbstractCallback):
         is_current_val_better = is_first_epoch or (self.comparison_operator(current_metric_val, self.best_value))
         if is_current_val_better:
             self.best_value = current_metric_val
-            print(f"New best value: {self.best_value}. Saving")
+            if self.verbose:
+                print(f"New best value: {self.best_value}. Saving")
             self.save_model()
 

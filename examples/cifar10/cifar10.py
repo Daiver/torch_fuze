@@ -59,14 +59,13 @@ def main():
     ])
     callbacks = [
         torch_fuze.callbacks.ProgressCallback(),
-        # torch_fuze.callbacks.BestModelSaverCallback(model, "checkpoints/best.pt")
         torch_fuze.callbacks.BestModelSaverCallback(
             model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False),
         torch_fuze.callbacks.TensorBoardXCallback("logs")
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(
-        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=50, callbacks=callbacks, metrics=metrics)
+        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=200, callbacks=callbacks, metrics=metrics)
 
 
 if __name__ == '__main__':

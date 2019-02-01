@@ -1,6 +1,3 @@
-examples/data/
-examples/checkpoints/
-examples/logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
