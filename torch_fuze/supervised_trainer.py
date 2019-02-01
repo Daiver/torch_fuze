@@ -57,10 +57,10 @@ class SupervisedTrainer(AbstractTrainer):
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
-                if scheduler is not None:
-                    scheduler.step()
             end_time = time.time()
             self.state.elapsed = end_time - start_time
+            if scheduler is not None:
+                scheduler.step()
             self.model.train(False)
 
             self.state.run_avg_loss = np.mean(losses)
