@@ -29,6 +29,7 @@ class SupervisedTrainer(AbstractTrainer):
         metrics = OrderedDict([("loss", self.criterion)]) if metrics is None else metrics
 
         self.model.to(self.device)
+        optimizer.zero_grad()
         self.callbacks_on_training_begin(callbacks)
 
         self.state.optimizer = optimizer
