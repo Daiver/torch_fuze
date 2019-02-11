@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 
 import torch_fuze
 import pretrainedmodels
+import torchvision
 
 
 # Just copy-paste from https://github.com/catalyst-team/catalyst/blob/master/examples/notebook-example.ipynb
@@ -37,12 +38,18 @@ class Net2(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.backbone = pretrainedmodels.resnet50()
+        # self.backbone = pretrainedmodels.resnet50()
+        resnet = torchvision.models.resnet152(pretrained=True)
+        modules = list(resnet.children())[:-2]
+        resnet = nn.Sequential(*modules)
+        self.backbone = resnet
         self.add_module('backbone', self.backbone)
         self.fc_final = nn.Linear(2048, 10)
 
     def forward(self, x):
-        x = self.backbone.features(x)
+        # x = self.backbone.features(x)
+        x = self.backbone(x)
+        # print(x.shape)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(-1, 2048)
         x = self.fc_final(x)
         return x
@@ -53,10 +60,10 @@ def main():
 
     # lr = 0.01
     # batch_size = 32
-    # batch_size = 64
-    batch_size = 128
+    batch_size = 64
+    # batch_size = 128
     # device = "cpu"
-    device = "cuda:1"
+    device = "cuda:0"
 
     print(f"Device: {device}")
     if device.startswith("cuda"):
@@ -72,6 +79,8 @@ def main():
 
     # model = Net()
     model = Net2()
+    model = nn.DataParallel(model)
+    model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
