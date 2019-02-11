@@ -1,5 +1,6 @@
 import unittest
 
+import copy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -50,6 +51,7 @@ class TestUtils(unittest.TestCase):
         model.fc.bias.data = torch.FloatTensor([-10])
 
         model2 = copy_model(model)
+        model2_state_dict = copy.deepcopy(model2.state_dict())
 
         batch_x = torch.FloatTensor([
             [12], [-2]
@@ -69,6 +71,10 @@ class TestUtils(unittest.TestCase):
 
         self.assertTrue(is_tensors_almost_equal(model.fc.weight.data, torch.FloatTensor([[1]])))
         self.assertTrue(is_tensors_almost_equal(model.fc.bias.data, torch.FloatTensor([-10])))
+
+        model2.load_state_dict(model2_state_dict)
+        self.assertTrue(is_tensors_almost_equal(model.fc.weight.data, model2.fc.weight.data))
+        self.assertTrue(is_tensors_almost_equal(model.fc.bias.data, model2.fc.bias.data))
 
 
 if __name__ == '__main__':

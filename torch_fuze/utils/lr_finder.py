@@ -1,4 +1,8 @@
+import copy
 import numpy as np
+from .other import copy_model, set_lr
+import torch.nn as nn
+import torch.optim as optim
 
 
 class LrFinderSummary:
@@ -13,20 +17,20 @@ def get_logscale_lr(init_lr, final_lr, iteration, n_iterations):
     return init_lr * (final_lr / init_lr) ** (iteration / n_iterations)
 
 
-def set_lr(optimizer, lr):
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
-
 def find_lr_supervised(
-        model,
-        criterion,
+        model: nn.Module,
+        criterion: optim.Optimizer,
         optimizer,
         loader,
         init_lr,
         final_lr,
         device="cpu",
-        avg_loss_momentum=0.98):
+        avg_loss_momentum=0.98,
+        verbose=True):
+
+    model_dict = copy.deepcopy(model.state_dict())
+    optimizer_dict = copy.deepcopy(optimizer.state_dict())
+
     n_items = len(loader)
 
     n_iterations = n_items - 1
@@ -56,5 +60,14 @@ def find_lr_supervised(
         loss.backward()
         optimizer.step()
 
+    model.load_state_dict(model_dict)
+    optimizer.load_state_dict(optimizer_dict)
+
     best_lr = lrs[np.argmin(smoothed_losses)]
-    return best_lr, LrFinderSummary(losses=losses, smoothed_losses=smoothed_losses, learning_rates=lrs, best_lr=best_lr)
+    summary = LrFinderSummary(losses=losses, smoothed_losses=smoothed_losses, learning_rates=lrs, best_lr=best_lr)
+
+    if verbose:
+        print("Lr finder finished")
+        print(f"Best lr = {best_lr} Min smooth loss = {np.min(summary.smoothed_losses)}")
+
+    return best_lr, summary

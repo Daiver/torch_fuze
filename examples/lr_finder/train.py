@@ -1,3 +1,5 @@
+import random
+from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -9,6 +11,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
 
+import torch_fuze
 from torch_fuze.utils import find_lr_supervised
 
 
@@ -34,6 +37,9 @@ class Net(nn.Module):
 
 
 def main():
+    torch.manual_seed(42)
+    random.seed(42)
+    np.random.seed(42)
     # lr = 0.01
     batch_size = 64
     # device = "cpu"
@@ -41,25 +47,46 @@ def main():
 
     trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (1.0,))])
     train_set = CIFAR10(root="data/", train=True, transform=trans, download=True)
+    test_set = CIFAR10(root="data/", train=False, transform=trans, download=True)
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, pin_memory=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, pin_memory=False, num_workers=4)
 
     model = Net()
     criterion = nn.CrossEntropyLoss()
+
     optimizer = optim.Adam(model.parameters())
     best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 1e-5, 1, device=device)
-    print("Lr finder finished")
-    print(f"Best lr = {best_lr}")
-    print(f"Min loss = {np.min(summary.losses)}, best lr = {summary.learning_rates[np.argmin(summary.losses)]}")
-    print(f"Min smooth loss = {np.min(summary.smoothed_losses)}, "
-          f"best lr = {summary.learning_rates[np.argmin(summary.smoothed_losses)]}")
+    torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
 
     plt.figure(1)
     plt.plot(np.log10(summary.learning_rates), summary.losses)
     # plt.figure(2)
     # plt.plot(np.log10(lrs), avg_losses)
     plt.plot(np.log10(summary.learning_rates), summary.smoothed_losses)
-    plt.show()
+    plt.draw()
+
+    # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
+    scheduler = None
+
+    metrics = OrderedDict([
+        ("loss", criterion),
+        ("acc", torch_fuze.metrics.Accuracy())
+    ])
+    callbacks = [
+        torch_fuze.callbacks.ProgressCallback(),
+        torch_fuze.callbacks.BestModelSaverCallback(
+            model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False),
+        torch_fuze.callbacks.TensorBoardXCallback("logs", remove_old_logs=True),
+        torch_fuze.callbacks.MLFlowCallback(
+            metrics_to_track={"valid_loss", "valid_acc", "train_acc"},
+            lowest_metrics_to_track={"valid_loss"},
+            highest_metrics_to_track={"valid_acc"},
+            files_to_save_at_every_batch={"checkpoints/best.pt"})
+    ]
+    trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
+    trainer.run(
+        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=200, callbacks=callbacks, metrics=metrics)
 
 
 if __name__ == '__main__':
