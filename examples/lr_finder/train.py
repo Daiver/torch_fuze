@@ -40,6 +40,7 @@ def main():
     torch.manual_seed(42)
     random.seed(42)
     np.random.seed(42)
+    torch.backends.cudnn.deterministic = True
     # lr = 0.01
     batch_size = 64
     # device = "cpu"
@@ -53,21 +54,29 @@ def main():
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, pin_memory=False, num_workers=4)
 
     model = Net()
+    model = model.to(device)
     criterion = nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(model.parameters())
-    best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 1e-5, 1, device=device)
-    torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
+    best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 15, 20, device=device)
+    # torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
 
-    plt.figure(1)
-    plt.plot(np.log10(summary.learning_rates), summary.losses)
-    # plt.figure(2)
-    # plt.plot(np.log10(lrs), avg_losses)
-    plt.plot(np.log10(summary.learning_rates), summary.smoothed_losses)
-    plt.draw()
+    torch.manual_seed(42)
+    random.seed(42)
+    np.random.seed(42)
+
+    # plt.figure(1)
+    # plt.plot(np.log10(summary.learning_rates), summary.losses)
+    # # plt.figure(2)
+    # # plt.plot(np.log10(lrs), avg_losses)
+    # plt.plot(np.log10(summary.learning_rates), summary.smoothed_losses)
+    # plt.draw()
+    # plt.pause(10)
 
     # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
     scheduler = None
+
+    print(model.conv1.weight.data[0, 0, 0])
 
     metrics = OrderedDict([
         ("loss", criterion),

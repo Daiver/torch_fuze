@@ -30,6 +30,7 @@ def find_lr_supervised(
 
     model_dict = copy.deepcopy(model.state_dict())
     optimizer_dict = copy.deepcopy(optimizer.state_dict())
+    loader = copy.deepcopy(loader)
 
     n_items = len(loader)
 
