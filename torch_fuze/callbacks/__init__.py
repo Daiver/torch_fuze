@@ -20,7 +20,7 @@ class ProgressCallback(AbstractCallback):
                          f"loss = {state.run_avg_loss}, " \
                          f"elapsed = {state.elapsed:.2f}, "
         if state.scheduler is not None:
-            summary_string += f"lr = {state.scheduler.get_lr()[0]}"
+            summary_string += f"lr = {state.scheduler.get_logscale_lr()[0]}"
         print(summary_string)
         for metrics_cat_name, value in state.metrics_per_category.items():
             string_to_print = metrics_to_nice_string(value)

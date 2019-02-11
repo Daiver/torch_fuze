@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import torch
 
 
 def is_ordered_dicts_almost_equal(d1: OrderedDict, d2: OrderedDict, epsilon=1e-5):
@@ -13,3 +14,7 @@ def is_ordered_dicts_almost_equal(d1: OrderedDict, d2: OrderedDict, epsilon=1e-5
             return False
 
     return True
+
+
+def is_tensors_almost_equal(t1, t2, epsilon=1e-9):
+    return torch.dist(t1, t2).item() < epsilon

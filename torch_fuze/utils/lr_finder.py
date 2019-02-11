@@ -9,7 +9,7 @@ class LrFinderSummary:
         self.best_lr = best_lr
 
 
-def get_lr(init_lr, final_lr, iteration, n_iterations):
+def get_logscale_lr(init_lr, final_lr, iteration, n_iterations):
     return init_lr * (final_lr / init_lr) ** (iteration / n_iterations)
 
 
@@ -40,7 +40,7 @@ def find_lr_supervised(
 
     for iteration, (x, y) in enumerate(loader):
         x, y = x.to(device), y.to(device)
-        cur_lr = get_lr(init_lr, final_lr, iteration, n_iterations)
+        cur_lr = get_logscale_lr(init_lr, final_lr, iteration, n_iterations)
         set_lr(optimizer, cur_lr)
         lrs.append(cur_lr)
 
