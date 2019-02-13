@@ -1,5 +1,6 @@
 # Basically example of lr finder usage
 
+import time
 import random
 from collections import OrderedDict
 import matplotlib.pyplot as plt
@@ -13,8 +14,11 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import CIFAR10
 import torchvision.transforms as transforms
 
+import mlflow
+
 import torch_fuze
 from torch_fuze.utils import find_lr_supervised
+from torch_fuze.lr_scheduler import OneCycleLR
 
 
 # Just copy-paste from https://github.com/catalyst-team/catalyst/blob/master/examples/notebook-example.ipynb
@@ -44,9 +48,18 @@ def main():
     np.random.seed(42)
     torch.backends.cudnn.deterministic = True
     # lr = 0.01
+    n_epochs = 40
     batch_size = 64
     # device = "cpu"
-    device = "cuda:0"
+    device = "cuda:1"
+
+    mlflow.start_run()
+    mlflow.log_param("n_epochs", n_epochs)
+    mlflow.log_param("batch_size", batch_size)
+    mlflow.log_param("device", device)
+
+    run_start_time = mlflow.active_run().info.start_time
+    readable_start_time = time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(run_start_time / 1000))
 
     trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (1.0,))])
     train_set = CIFAR10(root="data/", train=True, transform=trans, download=True)
@@ -73,9 +86,10 @@ def main():
     # plt.pause(10)
 
     # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
-    scheduler = None
-
-    print(model.conv1.weight.data[0, 0, 0])
+    scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.8, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
+    # scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.5, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
+    # scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.1, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
+    # scheduler = None
 
     metrics = OrderedDict([
         ("loss", criterion),
@@ -85,7 +99,7 @@ def main():
         torch_fuze.callbacks.ProgressCallback(),
         torch_fuze.callbacks.BestModelSaverCallback(
             model, "checkpoints/best.pt", metric_name="acc", lower_is_better=False),
-        torch_fuze.callbacks.TensorBoardXCallback("logs", remove_old_logs=True),
+        torch_fuze.callbacks.TensorBoardXCallback(f"logs/{readable_start_time}/", remove_old_logs=True),
         torch_fuze.callbacks.MLFlowCallback(
             metrics_to_track={"valid_loss", "valid_acc", "train_acc"},
             lowest_metrics_to_track={"valid_loss"},
@@ -94,7 +108,7 @@ def main():
     ]
     trainer = torch_fuze.SupervisedTrainer(model, criterion, device)
     trainer.run(
-        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=200, callbacks=callbacks, metrics=metrics)
+        train_loader, test_loader, optimizer, scheduler=scheduler, n_epochs=n_epochs, callbacks=callbacks, metrics=metrics)
 
 
 if __name__ == '__main__':
