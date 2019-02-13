@@ -51,7 +51,7 @@ def main():
     n_epochs = 40
     batch_size = 64
     # device = "cpu"
-    device = "cuda:1"
+    device = "cuda:0"
 
     mlflow.start_run()
     mlflow.log_param("n_epochs", n_epochs)
@@ -74,7 +74,7 @@ def main():
 
     optimizer = optim.Adam(model.parameters())
     best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 1e-9, 1, device=device)
-    torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
+    # torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
 
     torch.manual_seed(42)
     random.seed(42)
@@ -86,10 +86,10 @@ def main():
     # plt.pause(10)
 
     # scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 8], gamma=0.3)
-    scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.8, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
+    # scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.8, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
     # scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.5, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
     # scheduler = OneCycleLR(optimizer, best_lr * 0.01, best_lr * 0.1, 1e-6, n_total_epochs=n_epochs, cycle_fraction=0.8)
-    # scheduler = None
+    scheduler = None
 
     metrics = OrderedDict([
         ("loss", criterion),
