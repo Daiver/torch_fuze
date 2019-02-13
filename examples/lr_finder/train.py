@@ -1,3 +1,5 @@
+# Basically example of lr finder usage
+
 import random
 from collections import OrderedDict
 import matplotlib.pyplot as plt
@@ -44,7 +46,7 @@ def main():
     # lr = 0.01
     batch_size = 64
     # device = "cpu"
-    device = "cuda"
+    device = "cuda:0"
 
     trans = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (1.0,))])
     train_set = CIFAR10(root="data/", train=True, transform=trans, download=True)
@@ -58,17 +60,14 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     optimizer = optim.Adam(model.parameters())
-    best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 15, 20, device=device)
-    # torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
+    best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 1e-9, 1, device=device)
+    torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
 
-    torch.manual_seed(42)
-    random.seed(42)
-    np.random.seed(42)
-
-    # plt.figure(1)
+    # torch.manual_seed(42)
+    # random.seed(42)
+    # np.random.seed(42)
+    #
     # plt.plot(np.log10(summary.learning_rates), summary.losses)
-    # # plt.figure(2)
-    # # plt.plot(np.log10(lrs), avg_losses)
     # plt.plot(np.log10(summary.learning_rates), summary.smoothed_losses)
     # plt.draw()
     # plt.pause(10)
