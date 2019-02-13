@@ -63,10 +63,10 @@ def main():
     best_lr, summary = find_lr_supervised(model, criterion, optimizer, train_loader, 1e-9, 1, device=device)
     torch_fuze.utils.set_lr(optimizer, best_lr * 0.1)
 
-    # torch.manual_seed(42)
-    # random.seed(42)
-    # np.random.seed(42)
-    #
+    torch.manual_seed(42)
+    random.seed(42)
+    np.random.seed(42)
+
     # plt.plot(np.log10(summary.learning_rates), summary.losses)
     # plt.plot(np.log10(summary.learning_rates), summary.smoothed_losses)
     # plt.draw()
