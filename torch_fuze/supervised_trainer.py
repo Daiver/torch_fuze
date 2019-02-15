@@ -2,6 +2,8 @@ from collections import OrderedDict
 import time
 import numpy as np
 
+import torch
+
 from .abstract_trainer import AbstractTrainer
 from .supervised_evaluator import run_supervised_metrics
 from .supervised_metrics_evaluator import SupervisedMetricsEvaluator
@@ -20,9 +22,10 @@ class SupervisedTrainer(AbstractTrainer):
     def run(self,
             train_loader,
             val_loader,
-            optimizer,
+            optimizer: torch.optim.Optimizer,
             n_epochs,
             scheduler=None,
+            clip_grad_value=None,
             callbacks: list=None,
             metrics: OrderedDict=None):
         callbacks = [] if callbacks is None else callbacks
@@ -56,6 +59,10 @@ class SupervisedTrainer(AbstractTrainer):
                 losses.append(loss.item())
 
                 loss.backward()
+                if clip_grad_value is not None:
+                    for group in optimizer.param_groups:
+                        group_params = group['params']
+                        torch.nn.utils.clip_grad_norm_(group_params, clip_grad_value, norm_type=2)
                 optimizer.step()
                 optimizer.zero_grad()
             end_time = time.time()
