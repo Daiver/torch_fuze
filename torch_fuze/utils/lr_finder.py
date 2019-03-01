@@ -19,8 +19,8 @@ def get_logscale_lr(init_lr, final_lr, iteration, n_iterations):
 
 def find_lr_supervised(
         model: nn.Module,
-        criterion: optim.Optimizer,
-        optimizer,
+        criterion,
+        optimizer: optim.Optimizer,
         loader,
         init_lr,
         final_lr,
