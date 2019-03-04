@@ -73,3 +73,20 @@ class BestModelSaverCallback(AbstractCallback):
                 print(f"New best value: {self.best_value}. Saving")
             self.save_model()
 
+
+class ModelSaverCallback(AbstractCallback):
+    def __init__(self,
+                 model,
+                 save_path):
+        super().__init__()
+        self.model = model
+        self.save_path = save_path
+
+    def save_model(self):
+        dir_path = os.path.dirname(self.save_path)
+        os.makedirs(dir_path, exist_ok=True)
+        torch.save(self.model.state_dict(), self.save_path)
+
+    def on_epoch_end(self, state: TrainerState):
+        self.save_model()
+
