@@ -53,7 +53,7 @@ class SupervisedTrainer(AbstractTrainer):
 
                 inp, target = inp.to(self.device), target.to(self.device)
                 output = self.model(inp)
-                train_metrics_evaluator.process_batch(output, target)
+                train_metrics_evaluator.process_batch(output.detach(), target.detach())
                 loss = self.criterion(output, target)
 
                 losses.append(loss.item())
@@ -73,6 +73,7 @@ class SupervisedTrainer(AbstractTrainer):
 
             self.state.run_avg_loss = np.mean(losses)
 
+            # print(losses)
             self.state.metrics_per_category["train"] = train_metrics_evaluator.compute_result_and_reset(True)
             self.state.metrics_per_category["valid"] = run_supervised_metrics(
                 self.model, metrics, val_loader, self.device)

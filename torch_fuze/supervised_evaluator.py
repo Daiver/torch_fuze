@@ -14,5 +14,6 @@ def run_supervised_metrics(model, metrics, loader, device):
             outputs = model(inputs)
             metrics_evaluator.process_batch(outputs, targets)
 
+    # print([float(x.detach().cpu().numpy()) for x in metrics_evaluator.metrics_values_per_batch["loss"]])
     res = metrics_evaluator.compute_result_and_reset(True)
     return res
