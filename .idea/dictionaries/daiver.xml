@@ -8,11 +8,13 @@
       <w>fuze</w>
       <w>logscale</w>
       <w>mlflow</w>
+      <w>multistep</w>
       <w>pred</w>
       <w>prog</w>
       <w>tensorboard</w>
       <w>torchvision</w>
       <w>vals</w>
+      <w>warmup</w>
     </words>
   </dictionary>
 </component>
