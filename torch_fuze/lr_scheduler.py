@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
         n_epochs = 50
         scheduler = MultiStepLRWithLinearWarmUp(
-            optimizer, warmup_cutoff=9, init_lr_scale=0.01, milestones=[10, 20, 30, 40], gamma=0.1)
+            optimizer, warmup_cutoff=8, init_lr_scale=0.01, milestones=[10, 20, 30, 40], gamma=0.1)
         steps = []
         lrs = []
         for i in range(0, n_epochs):
