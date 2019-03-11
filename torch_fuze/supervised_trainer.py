@@ -25,6 +25,7 @@ class SupervisedTrainer(AbstractTrainer):
             optimizer: torch.optim.Optimizer,
             n_epochs,
             scheduler=None,
+            scheduler_after_each_batch=False,
             clip_grad_value=None,
             callbacks: list=None,
             metrics: OrderedDict=None):
@@ -65,9 +66,11 @@ class SupervisedTrainer(AbstractTrainer):
                         torch.nn.utils.clip_grad_norm_(group_params, clip_grad_value, norm_type=2)
                 optimizer.step()
                 optimizer.zero_grad()
+                if scheduler_after_each_batch and scheduler is not None:
+                    scheduler.step()
             end_time = time.time()
             self.state.elapsed = end_time - start_time
-            if scheduler is not None:
+            if scheduler is not None and not scheduler_after_each_batch:
                 scheduler.step()
             self.model.train(False)
 
