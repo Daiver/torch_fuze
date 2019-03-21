@@ -1,5 +1,6 @@
 import os
 import operator
+import json
 import torch
 
 from ..trainer_state import TrainerState
@@ -41,27 +42,55 @@ class ValidationCallback(AbstractCallback):
         state.metrics_per_category[self.prefix] = metrics_vals
 
 
-class BestModelSaverCallback(AbstractCallback):
+def save_model(save_path, model):
+    dir_path = os.path.dirname(save_path)
+    os.makedirs(dir_path, exist_ok=True)
+    torch.save(model.state_dict(), save_path)
+
+
+def save_meta_info(save_path, meta_info: dict):
+    with open(save_path, "w") as f:
+        json.dump(meta_info, f)
+
+
+
+class ModelSaverCallback(AbstractCallback):
+    def __init__(self,
+                 model,
+                 save_path,
+                 meta_info=None):
+        super().__init__()
+        self.model = model
+        self.save_path = save_path
+        self.meta_info = meta_info
+
+    def save_model(self):
+        save_model(self.save_path, self.model)
+        if self.meta_info is not None:
+            meta_info_path = self.save_path + ".json"
+            save_meta_info(meta_info_path, self.meta_info)
+
+    def on_epoch_end(self, state: TrainerState):
+        self.save_model()
+
+
+class BestModelSaverCallback(ModelSaverCallback):
     def __init__(self,
                  model,
                  save_path,
                  metric_name="loss",
                  metric_category="valid",
                  lower_is_better=True,
+                 meta_info=None,
                  verbose=False):
-        super().__init__()
-        self.model = model
-        self.save_path = save_path
+        super().__init__(model, save_path, meta_info)
+
         self.metric_name = metric_name
         self.metric_category = metric_category
         self.best_value = None
         self.comparison_operator = operator.lt if lower_is_better else operator.gt
         self.verbose = verbose
 
-    def save_model(self):
-        dir_path = os.path.dirname(self.save_path)
-        os.makedirs(dir_path, exist_ok=True)
-        torch.save(self.model.state_dict(), self.save_path)
 
     def on_epoch_end(self, state: TrainerState):
         is_first_epoch = self.best_value is None
@@ -72,21 +101,4 @@ class BestModelSaverCallback(AbstractCallback):
             if self.verbose:
                 print(f"New best value: {self.best_value}. Saving")
             self.save_model()
-
-
-class ModelSaverCallback(AbstractCallback):
-    def __init__(self,
-                 model,
-                 save_path):
-        super().__init__()
-        self.model = model
-        self.save_path = save_path
-
-    def save_model(self):
-        dir_path = os.path.dirname(self.save_path)
-        os.makedirs(dir_path, exist_ok=True)
-        torch.save(self.model.state_dict(), self.save_path)
-
-    def on_epoch_end(self, state: TrainerState):
-        self.save_model()
 
