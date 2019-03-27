@@ -5,6 +5,7 @@
       <w>conv</w>
       <w>cuda</w>
       <w>daiver</w>
+      <w>dataset</w>
       <w>fuze</w>
       <w>logscale</w>
       <w>mlflow</w>
