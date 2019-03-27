@@ -7,3 +7,4 @@ from . import metrics
 from . import lr_scheduler
 from . import utils
 from . import losses
+from . import data
