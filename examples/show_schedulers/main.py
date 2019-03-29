@@ -3,8 +3,7 @@ import torch.nn as nn
 
 import torch.optim as optim
 
-from torch_fuze.lr_scheduler import OneCycleLR
-from torch_fuze.lr_scheduler import MultiStepLRWithLinearWarmUp
+from torch_fuze.lr_scheduler import OneCycleLR, MultiStepLRWithLinearWarmUp, CosineAnnealingLRFixedDecay
 
 
 def show_1cycle():
@@ -43,6 +42,26 @@ def show_multistep_linear_warmup():
     plt.show()
 
 
+def show_cosine_annealing_with_fixed_decay():
+    model = nn.Linear(1, 2)
+    optimizer = optim.SGD(model.parameters(), 1.0)
+
+    n_epochs = 50
+    scheduler = CosineAnnealingLRFixedDecay(
+        optimizer, t_max=10, eta_min=0, decay_coeff=0.5)
+    steps = []
+    lrs = []
+    for i in range(0, n_epochs):
+        scheduler.step()
+        steps.append(i)
+        lrs.append(scheduler.get_lr()[0])
+    print(lrs)
+
+    plt.plot(steps, lrs)
+    plt.show()
+
+
 if __name__ == '__main__':
     # show_multistep_linear_warmup()
-    show_1cycle()
+    # show_1cycle()
+    show_cosine_annealing_with_fixed_decay()

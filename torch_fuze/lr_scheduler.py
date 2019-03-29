@@ -43,3 +43,20 @@ class MultiStepLRWithLinearWarmUp(optim.lr_scheduler._LRScheduler):
         lr_scale = (1.0 - self.init_lr_scale) * warmup_progress + self.init_lr_scale
         return [base_lr * lr_scale for base_lr in self.base_lrs]
 
+
+class CosineAnnealingLRFixedDecay(optim.lr_scheduler._LRScheduler):
+    def __init__(self, optimizer, t_max, eta_min=0, decay_coeff=0.2, last_epoch=-1):
+        self.t_max = t_max
+        self.eta_min = eta_min
+        self.decay_coeff = decay_coeff
+        super().__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        half_cycle_ind = self.last_epoch // self.t_max
+        full_cycle_ind = (half_cycle_ind + 1) // 2
+
+        lr_multiplier = math.pow(self.decay_coeff, full_cycle_ind)
+        cycle_fraction = self.last_epoch / self.t_max
+        return [self.eta_min + lr_multiplier * (base_lr - self.eta_min) *
+                (1 + math.cos(math.pi * cycle_fraction)) / 2
+                for base_lr in self.base_lrs]

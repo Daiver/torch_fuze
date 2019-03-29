@@ -4,3 +4,4 @@ torchvision
 tensorboardX
 mlflow
 pretrainedmodels
+matplotlib
